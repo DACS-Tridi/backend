@@ -8,9 +8,7 @@ import lombok.Data;
 public class UserDTO {
     private Long id;
     
-    private String name;
-    
-    private String email;
+    private String username;
     
     private Gender gender;                 
     
@@ -18,11 +16,7 @@ public class UserDTO {
     
     private String registerDate;        
     
-    private Boolean Active;
+    private Boolean active;
     
-    private String Description;
-    
-    private String userName;
-    
-    private String password;
+    private String description;
 }

@@ -11,10 +11,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String name;
-
-    private String email;
+    
+    private String userName;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -23,11 +21,7 @@ public class User {
 
     private String registerDate;
 
-    private Boolean isActiveUser;
+    private Boolean active;
 
-    private String profileDescription;
-
-    private String userName;
-
-    private String password;
+    private String description;
 }
