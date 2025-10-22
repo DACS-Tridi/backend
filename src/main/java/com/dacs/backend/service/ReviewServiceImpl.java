@@ -75,4 +75,39 @@ public class ReviewServiceImpl implements ReviewService {
                 ))
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public ReviewDTO createReview(ReviewDTO reviewDTO) {
+        Review review = new Review();
+        review.setUserId(reviewDTO.getUserId());
+        review.setAlbumId(reviewDTO.getAlbumId());
+        review.setAlbum(reviewDTO.getAlbum());
+        review.setHighlight(reviewDTO.getHighlight());
+        review.setImageURL(reviewDTO.getImageURL());
+        review.setRating(reviewDTO.getRating());
+        review.setTone(reviewDTO.getTone());
+        review.setTags(reviewDTO.getTags());
+        review.setPostedAt(java.time.LocalDateTime.now());
+        review.setLikes(0);
+        review.setComments(0);
+        review.setShares(0);
+
+        Review saved = reviewRepository.save(review);
+
+        return new ReviewDTO(
+            saved.getId(),
+            saved.getUserId(),
+            saved.getAlbumId(),
+            saved.getAlbum(),
+            saved.getHighlight(),
+            saved.getImageURL(),
+            saved.getRating(),
+            saved.getTone(),
+            saved.getPostedAt(),
+            saved.getLikes(),
+            saved.getComments(),
+            saved.getShares(),
+            saved.getTags()
+        );
+    }
 }

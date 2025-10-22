@@ -19,4 +19,11 @@ public class ReviewController {
         List<ReviewDTO> reviews = reviewService.getTopReviewsForToday();
         return ResponseEntity.ok(reviews);
     }
+    
+    @PostMapping
+    public ResponseEntity<ReviewDTO> createReview(@RequestBody ReviewDTO review) {
+        ReviewDTO created = reviewService.createReview(review);
+        return ResponseEntity.ok(created);
+    }
+
 }

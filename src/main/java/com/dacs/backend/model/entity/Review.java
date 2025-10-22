@@ -11,10 +11,11 @@ import lombok.Data;
 @Table(name = "reviews")
 public class Review {
 
-    @Id
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
     private Long userId;
-    private Long albumId;
+    private String albumId;
     private String album;
     private String highlight;
     private String imageURL;

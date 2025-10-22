@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ReviewService extends CommonService<Review> {
     List<ReviewDTO> getTopReviewsForToday();
+    
+    ReviewDTO createReview(ReviewDTO review);
 }
