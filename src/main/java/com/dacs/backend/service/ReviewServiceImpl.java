@@ -1,5 +1,6 @@
 package com.dacs.backend.service;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.dacs.backend.dto.ReviewDTO;
+import com.dacs.backend.dto.ReviewDTO.Stats;
 import com.dacs.backend.model.entity.Review;
 import com.dacs.backend.model.repository.ReviewRepository;
 
@@ -30,8 +32,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void delete(Long id) {
-        Optional<Review> review = getById(id);
-        review.ifPresent(reviewRepository::delete);
+        getById(id).ifPresent(reviewRepository::delete);
     }
 
     @Override
@@ -58,24 +59,27 @@ public class ReviewServiceImpl implements ReviewService {
     public List<ReviewDTO> getTopReviewsForToday() {
         return reviewRepository.findAllOrderByPostedAtDesc()
                 .stream()
-                .map(r -> new ReviewDTO(
-                        r.getId(),
-                        r.getUserId(),
-                        r.getAlbumId(),
-                        r.getAlbum(),
-                        r.getHighlight(),
-                        r.getImageURL(),
-                        r.getRating(),
-                        r.getTone(),
-                        r.getPostedAt(),
-                        r.getLikes(),
-                        r.getComments(),
-                        r.getShares(),
-                        r.getTags()
-                ))
+                .map(r -> {
+                    Stats stats = new Stats(r.getLikes(), r.getComments(), r.getShares());
+
+                    ReviewDTO dto = new ReviewDTO();
+                    dto.setId(r.getId());
+                    dto.setUser(null); 
+                    dto.setUserId(r.getUserId());
+                    dto.setAlbum(r.getAlbum());
+                    dto.setAlbumId(r.getAlbumId());
+                    dto.setHighlight(r.getHighlight());
+                    dto.setCover(r.getImageURL());
+                    dto.setRating(r.getRating());
+                    dto.setStats(stats);
+                    dto.setTags(r.getTags());
+                    dto.setTone(r.getTone());
+                    dto.setPostedAt(r.getPostedAt().atZone(ZoneId.systemDefault()));
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
-    
+
     @Override
     public ReviewDTO createReview(ReviewDTO reviewDTO) {
         Review review = new Review();
@@ -83,7 +87,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setAlbumId(reviewDTO.getAlbumId());
         review.setAlbum(reviewDTO.getAlbum());
         review.setHighlight(reviewDTO.getHighlight());
-        review.setImageURL(reviewDTO.getImageURL());
+        review.setImageURL(reviewDTO.getCover());
         review.setRating(reviewDTO.getRating());
         review.setTone(reviewDTO.getTone());
         review.setTags(reviewDTO.getTags());
@@ -94,20 +98,22 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review saved = reviewRepository.save(review);
 
-        return new ReviewDTO(
-            saved.getId(),
-            saved.getUserId(),
-            saved.getAlbumId(),
-            saved.getAlbum(),
-            saved.getHighlight(),
-            saved.getImageURL(),
-            saved.getRating(),
-            saved.getTone(),
-            saved.getPostedAt(),
-            saved.getLikes(),
-            saved.getComments(),
-            saved.getShares(),
-            saved.getTags()
-        );
+        Stats stats = new Stats(saved.getLikes(), saved.getComments(), saved.getShares());
+
+        ReviewDTO dto = new ReviewDTO();
+        dto.setId(saved.getId());
+        dto.setUser(null);
+        dto.setUserId(saved.getUserId());
+        dto.setAlbum(saved.getAlbum());
+        dto.setAlbumId(saved.getAlbumId());
+        dto.setHighlight(saved.getHighlight());
+        dto.setCover(saved.getImageURL());
+        dto.setRating(saved.getRating());
+        dto.setStats(stats);
+        dto.setTags(saved.getTags());
+        dto.setTone(saved.getTone());
+        dto.setPostedAt(saved.getPostedAt().atZone(ZoneId.systemDefault()));
+
+        return dto;
     }
 }
