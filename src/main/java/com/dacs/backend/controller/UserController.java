@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dacs.backend.dto.UserDTO;
@@ -51,6 +52,13 @@ public class UserController {
 		}
 		UserDTO data = modelMapper.map(user.get(), UserDTO.class);
 		return new ResponseEntity<UserDTO>(data, HttpStatus.OK);
+	}
+
+	@GetMapping("/by-username")
+	public ResponseEntity<UserDTO> getByUsername(@RequestParam("username") String username) {
+		User user = userService.findOrCreateByUsername(username);
+		UserDTO data = modelMapper.map(user, UserDTO.class);
+		return new ResponseEntity<>(data, HttpStatus.OK);
 	}
 
 	@PostMapping("")

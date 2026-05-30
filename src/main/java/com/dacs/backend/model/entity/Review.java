@@ -25,6 +25,8 @@ public class Review {
     private Integer likes;
     private Integer comments;
     private Integer shares;
+    private String reviewBody;
+
     @ElementCollection
     private List<String> tags;
 }

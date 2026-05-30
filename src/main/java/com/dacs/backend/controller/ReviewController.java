@@ -1,5 +1,6 @@
 package com.dacs.backend.controller;
 
+import com.dacs.backend.dto.AlbumReviewsResponseDTO;
 import com.dacs.backend.dto.ReviewDTO;
 import com.dacs.backend.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,13 @@ public class ReviewController {
         List<ReviewDTO> reviews = reviewService.getTopReviewsForToday();
         return ResponseEntity.ok(reviews);
     }
-    
+
+    @GetMapping("/album/{albumId}")
+    public ResponseEntity<AlbumReviewsResponseDTO> getReviewsByAlbum(@PathVariable("albumId") String albumId) {
+        AlbumReviewsResponseDTO response = reviewService.getReviewsByAlbumId(albumId);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping
     public ResponseEntity<ReviewDTO> createReview(@RequestBody ReviewDTO review) {
         ReviewDTO created = reviewService.createReview(review);

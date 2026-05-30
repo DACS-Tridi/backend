@@ -9,16 +9,22 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.dacs.backend.dto.AlbumReviewsResponseDTO;
 import com.dacs.backend.dto.ReviewDTO;
 import com.dacs.backend.dto.ReviewDTO.Stats;
 import com.dacs.backend.model.entity.Review;
+import com.dacs.backend.model.entity.User;
 import com.dacs.backend.model.repository.ReviewRepository;
+import com.dacs.backend.model.repository.UserRepository;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
 
     @Autowired
     private ReviewRepository reviewRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public Optional<Review> getById(Long id) {
@@ -59,25 +65,25 @@ public class ReviewServiceImpl implements ReviewService {
     public List<ReviewDTO> getTopReviewsForToday() {
         return reviewRepository.findAllOrderByPostedAtDesc()
                 .stream()
-                .map(r -> {
-                    Stats stats = new Stats(r.getLikes(), r.getComments(), r.getShares());
-
-                    ReviewDTO dto = new ReviewDTO();
-                    dto.setId(r.getId());
-                    dto.setUser(null); 
-                    dto.setUserId(r.getUserId());
-                    dto.setAlbum(r.getAlbum());
-                    dto.setAlbumId(r.getAlbumId());
-                    dto.setHighlight(r.getHighlight());
-                    dto.setCover(r.getImageURL());
-                    dto.setRating(r.getRating());
-                    dto.setStats(stats);
-                    dto.setTags(r.getTags());
-                    dto.setTone(r.getTone());
-                    dto.setPostedAt(r.getPostedAt().atZone(ZoneId.systemDefault()));
-                    return dto;
-                })
+                .map(r -> toDTO(r))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public AlbumReviewsResponseDTO getReviewsByAlbumId(String albumId) {
+        List<Review> reviews = reviewRepository.findByAlbumIdOrderByPostedAtDesc(albumId);
+
+        List<ReviewDTO> dtos = reviews.stream()
+                .map(r -> toDTO(r))
+                .collect(Collectors.toList());
+
+        double avg = reviews.stream()
+                .filter(r -> r.getRating() != null)
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0.0);
+
+        return new AlbumReviewsResponseDTO(albumId, avg, reviews.size(), dtos);
     }
 
     @Override
@@ -91,29 +97,43 @@ public class ReviewServiceImpl implements ReviewService {
         review.setRating(reviewDTO.getRating());
         review.setTone(reviewDTO.getTone());
         review.setTags(reviewDTO.getTags());
+        review.setReviewBody(reviewDTO.getReviewBody());
         review.setPostedAt(java.time.LocalDateTime.now());
         review.setLikes(0);
         review.setComments(0);
         review.setShares(0);
 
         Review saved = reviewRepository.save(review);
+        return toDTO(saved);
+    }
 
-        Stats stats = new Stats(saved.getLikes(), saved.getComments(), saved.getShares());
+    private ReviewDTO toDTO(Review r) {
+        String username = null;
+        if (r.getUserId() != null) {
+            Optional<User> user = userRepository.findById(r.getUserId());
+            username = user.map(User::getUserName).orElse(null);
+        }
+
+        Stats stats = new Stats(
+                r.getLikes() != null ? r.getLikes() : 0,
+                r.getComments() != null ? r.getComments() : 0,
+                r.getShares() != null ? r.getShares() : 0
+        );
 
         ReviewDTO dto = new ReviewDTO();
-        dto.setId(saved.getId());
-        dto.setUser(null);
-        dto.setUserId(saved.getUserId());
-        dto.setAlbum(saved.getAlbum());
-        dto.setAlbumId(saved.getAlbumId());
-        dto.setHighlight(saved.getHighlight());
-        dto.setCover(saved.getImageURL());
-        dto.setRating(saved.getRating());
+        dto.setId(r.getId());
+        dto.setUser(username);
+        dto.setUserId(r.getUserId());
+        dto.setAlbum(r.getAlbum());
+        dto.setAlbumId(r.getAlbumId());
+        dto.setHighlight(r.getHighlight());
+        dto.setCover(r.getImageURL());
+        dto.setRating(r.getRating());
         dto.setStats(stats);
-        dto.setTags(saved.getTags());
-        dto.setTone(saved.getTone());
-        dto.setPostedAt(saved.getPostedAt().atZone(ZoneId.systemDefault()));
-
+        dto.setTags(r.getTags());
+        dto.setTone(r.getTone());
+        dto.setReviewBody(r.getReviewBody());
+        dto.setPostedAt(r.getPostedAt() != null ? r.getPostedAt().atZone(ZoneId.systemDefault()) : null);
         return dto;
     }
 }

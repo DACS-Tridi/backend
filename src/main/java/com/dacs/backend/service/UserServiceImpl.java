@@ -53,4 +53,20 @@ public class UserServiceImpl implements UserService {
 	public Boolean existById(Long id) {
 		return userRepository.existsById(id);
 	}
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUserName(username);
+    }
+
+    @Override
+    public User findOrCreateByUsername(String username) {
+        return userRepository.findByUserName(username).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setUserName(username);
+            newUser.setActive(true);
+            newUser.setRegisterDate(java.time.LocalDate.now().toString());
+            return userRepository.save(newUser);
+        });
+    }
 }

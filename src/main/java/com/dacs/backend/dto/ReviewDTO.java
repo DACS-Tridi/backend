@@ -34,7 +34,9 @@ public class ReviewDTO {
 
     private String tone;
 
-    private ZonedDateTime postedAt; 
+    private String reviewBody;
+
+    private ZonedDateTime postedAt;
 
     @Data
     @NoArgsConstructor
