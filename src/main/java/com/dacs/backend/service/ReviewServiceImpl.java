@@ -87,6 +87,14 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public List<ReviewDTO> getReviewsByUserId(Long userId) {
+        return reviewRepository.findByUserIdOrderByPostedAtDesc(userId)
+                .stream()
+                .map(r -> toDTO(r))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ReviewDTO createReview(ReviewDTO reviewDTO) {
         Review review = new Review();
         review.setUserId(reviewDTO.getUserId());

@@ -11,4 +11,6 @@ public interface ReviewService extends CommonService<Review> {
     ReviewDTO createReview(ReviewDTO review);
 
     AlbumReviewsResponseDTO getReviewsByAlbumId(String albumId);
+
+    List<ReviewDTO> getReviewsByUserId(Long userId);
 }

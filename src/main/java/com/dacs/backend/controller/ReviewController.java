@@ -15,6 +15,12 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
+    @GetMapping
+    public ResponseEntity<List<ReviewDTO>> getAllReviews() {
+        List<ReviewDTO> reviews = reviewService.getTopReviewsForToday();
+        return ResponseEntity.ok(reviews);
+    }
+
     @GetMapping("/today")
     public ResponseEntity<List<ReviewDTO>> getTopReviewsForToday() {
         List<ReviewDTO> reviews = reviewService.getTopReviewsForToday();
@@ -22,9 +28,15 @@ public class ReviewController {
     }
 
     @GetMapping("/album/{albumId}")
-    public ResponseEntity<AlbumReviewsResponseDTO> getReviewsByAlbum(@PathVariable("albumId") String albumId) {
+    public ResponseEntity<AlbumReviewsResponseDTO> getReviewsByAlbum(@PathVariable String albumId) {
         AlbumReviewsResponseDTO response = reviewService.getReviewsByAlbumId(albumId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ReviewDTO>> getReviewsByUser(@PathVariable Long userId) {
+        List<ReviewDTO> reviews = reviewService.getReviewsByUserId(userId);
+        return ResponseEntity.ok(reviews);
     }
 
     @PostMapping
