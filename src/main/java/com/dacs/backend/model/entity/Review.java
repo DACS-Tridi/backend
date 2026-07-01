@@ -25,6 +25,7 @@ public class Review {
     private Integer likes;
     private Integer comments;
     private Integer shares;
+    @Column(length = 10000)
     private String reviewBody;
 
     @ElementCollection
